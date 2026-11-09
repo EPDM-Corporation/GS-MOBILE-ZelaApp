@@ -14,7 +14,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
     };
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.screen}>
-        <View style = {styles.content}>
+        <View style = {styles.content}> 
             <Text style = {styles.title}>BEM VINDO A HOME</Text>
             <TouchableOpacity style={styles.button} onPress={sair}>
                 <Text style={styles.buttonText}>SAIR</Text>
