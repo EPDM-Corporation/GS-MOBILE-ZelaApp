@@ -1,11 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
+import { type JSX } from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View, Platform, TextInput, TouchableOpacity, Image} from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const LoginScreen = () => {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+const LoginScreen = ({ navigation }: Props): JSX.Element => {
+    
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.screen}>
         
