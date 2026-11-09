@@ -117,7 +117,7 @@ const CadastroScreen = ({ navigation }: Props): JSX.Element => {
                     secureTextEntry={true}
                 />
             {errorPasswordConfirm !== '' && <Text style={styles.error}>{errorPasswordConfirm}</Text>}
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={cadastro}>
                     <Text style={styles.buttonText} >Cadastrar</Text>
             </TouchableOpacity>
         </View>
