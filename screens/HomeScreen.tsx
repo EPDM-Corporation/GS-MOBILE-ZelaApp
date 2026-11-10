@@ -5,6 +5,7 @@ import { RootStackParamList } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -33,12 +34,9 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.screen}>
-            <View style={styles.content}> 
-                <Text style={styles.title}>BEM VINDO A HOME</Text>
-
-                {/* Container do Mapa */}
-                <View style={styles.mapContainer}>
+        <SafeAreaView style={styles.screen} edges={['top', 'bottom', 'left', 'right']}>
+                <View style={styles.screen}>
+                    {/*//////////////MAPA/////////////*/}
                     {!location && !errorMsg ? (
                         <View style={styles.center}>
                             <ActivityIndicator size="large" color="#173B57" />
@@ -72,13 +70,14 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                             )}
                         </MapView>
                     )}
+                    {/*//////////////FIM DO MAPA/////////////*/}
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Toque no mapa para marcar</Text>
+                    </TouchableOpacity>
                 </View>
+        </SafeAreaView>
 
-                <TouchableOpacity style={styles.button} onPress={sair}>
-                    <Text style={styles.buttonText}>SAIR</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
+
     );
 };
 
@@ -86,7 +85,7 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
     screen: { flex: 1 },
-    content: { flex: 1, justifyContent: 'center', paddingHorizontal: 28, paddingVertical: 40 },
+    content: { flex: 1, justifyContent: 'center' },
     title: { color: '#263746', fontSize: 28, fontWeight: 'bold', marginBottom: 16 },
     mapContainer: { 
         flex: 1, 
@@ -98,6 +97,20 @@ const styles = StyleSheet.create({
     },
     map: { width: '100%', height: '100%' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    button: { backgroundColor: '#173B57', borderRadius: 30, paddingVertical: 14, alignItems: 'center', marginTop: 16 },
+    button: {
+            position: 'absolute',
+            bottom: 30,
+            alignSelf: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#20B8A5',
+            paddingHorizontal: 24,
+            paddingVertical: 16,
+            borderRadius: 30,
+            elevation: 6,
+            gap: 10,
+        
+        },
     buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
