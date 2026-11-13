@@ -30,6 +30,8 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
     const [pinTemporario, setPinTemporario] = useState<Coordenada | null>(null);
     const [pontoMenuVisivel, setPontoMenuVisivel] = useState(false);
     const [pontosSalvos, setPontosSalvos] = useState<Ponto[]>([]);
+    const [nomeUsuario, setNomeUsuario] = useState<string>('');
+
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -39,21 +41,31 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
             }
             let currentLocation = await Location.getCurrentPositionAsync({});
             setLocation(currentLocation);
+            try {
+                const salvo = await AsyncStorage.getItem('session');
+            if (salvo) {
+                const sessao = JSON.parse(salvo);
+                setNomeUsuario(sessao.username ?? '');
+            }
+        } catch (e) {
+            console.log('Erro ao ler sessão', e);
+        }
         })();
     }, []);
 
     const sair = async (): Promise<void> => {
-        setMenuVisible(false); // NOVO: fecha o menu antes de sair
+        setMenuVisible(false); 
         await AsyncStorage.removeItem('session');
         navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
     };
 
+
     const aoTocarNoMapa = (e: MapPressEvent): void => {
     if (!modoMarcar) return;
 
-    setPinTemporario(e.nativeEvent.coordinate); // coloca o pin
-    setPontoMenuVisivel(true);                  // abre o menu
-    setModoMarcar(false);                       // desativa o modo
+    setPinTemporario(e.nativeEvent.coordinate); 
+    setPontoMenuVisivel(true);                 
+    setModoMarcar(false);                       
     };
 
     const salvarPonto = (categoria: CategoriaId): void => {
@@ -70,12 +82,12 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
         setPinTemporario(null);
         setPontoMenuVisivel(false);
     };
-        const abrirPonto = useCallback(
-            (ponto: Ponto): void => {
-                navigation.navigate('Detalhe', { ponto });
-            },
-            [navigation]
-        );
+    const abrirPonto = useCallback(
+        (ponto: Ponto): void => {
+            navigation.navigate('Detalhe', { ponto });
+        },
+        [navigation]
+    );
     return (
         <SafeAreaView style={styles.screen} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.screen}>
@@ -116,13 +128,6 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                             />
                         )}
 
-                            <PontoMarker ponto={{ id: 't1', latitude: -23.5329, longitude: -46.7917, categoria: 'buracos' }} />
-                            <PontoMarker ponto={{ id: 't2', latitude: -23.5335, longitude: -46.7900, categoria: 'alagamentos' }} />
-                            <PontoMarker ponto={{ id: 't3', latitude: -23.5320, longitude: -46.7930, categoria: 'transito' }} />
-                            <PontoMarker ponto={{ id: 't4', latitude: -23.5340, longitude: -46.7940, categoria: 'lixo' }} />
-                            <PontoMarker ponto={{ id: 't5', latitude: -23.5310, longitude: -46.7910, categoria: 'iluminacao' }} />
-                            <PontoMarker ponto={{ id: 't6', latitude: -23.5345, longitude: -46.7920, categoria: 'acessibilidade' }} />
-                            <PontoMarker ponto={{ id: 't7', latitude: -23.5315, longitude: -46.7895, categoria: 'riscos' }} />
                             {pontosSalvos.map((p) => (
                                 <PontoMarker key={p.id} ponto={p} onPress={abrirPonto} />
                             ))}
@@ -150,6 +155,7 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                     <Pressable style={styles.overlay} onPress={() => setMenuVisible(false)}>
                         <SafeAreaView edges={['top', 'left']} pointerEvents="box-none">
                             <View style={styles.menu}>
+                                <Text style={styles.menuItem}>{nomeUsuario || 'Usuário'}</Text>
                                 <TouchableOpacity style={styles.menuItem}>
                                     <Ionicons name="cog" size={20}/>
                                     <Text>Configuração</Text>
@@ -207,7 +213,7 @@ const styles = StyleSheet.create({
     },
     buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 
-    // NOVO: avatar no canto superior esquerdo
+
     avatarButton: {
         position: 'absolute',
         top: 16,
@@ -225,10 +231,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
     },
 
-    // NOVO: menu
+    
     overlay: { flex: 1 },
     menu: {
-        marginTop: 68, // logo abaixo do avatar (16 + 44 + 8)
+        marginTop: 68, 
         marginLeft: 16,
         alignSelf: 'flex-start',
         backgroundColor: '#fff',
