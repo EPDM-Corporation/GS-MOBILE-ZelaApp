@@ -117,7 +117,9 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                             <PontoMarker ponto={{ id: 't5', latitude: -23.5310, longitude: -46.7910, categoria: 'iluminacao' }} />
                             <PontoMarker ponto={{ id: 't6', latitude: -23.5345, longitude: -46.7920, categoria: 'acessibilidade' }} />
                             <PontoMarker ponto={{ id: 't7', latitude: -23.5315, longitude: -46.7895, categoria: 'riscos' }} />
-
+                        {pontosSalvos.map((p) => (
+                        <PontoMarker key={p.id} ponto={p} onRemover={removerPonto} />
+                        ))}
                         {pinTemporario && <Marker coordinate={pinTemporario} pinColor="red" />}
                     </MapView>
                 )}
