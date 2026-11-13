@@ -1,4 +1,4 @@
-import { type JSX, useEffect, useState } from 'react';
+import { type JSX, memo, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,10 +7,10 @@ import { getCategoria } from '../constants/categorias';
 
 type Props = {
     ponto: Ponto;
-    onRemover?: (id: string) => void;
+    onPress?: (ponto: Ponto) => void; // era onRemover
 };
 
-const PontoMarker = ({ ponto, onRemover }: Props): JSX.Element => {
+const PontoMarker = ({ ponto, onPress }: Props): JSX.Element => {
     const cat = getCategoria(ponto.categoria);
 
     // No Android, o marcador customizado precisa renderizar uma vez
@@ -24,9 +24,7 @@ const PontoMarker = ({ ponto, onRemover }: Props): JSX.Element => {
     return (
         <Marker
             coordinate={{ latitude: ponto.latitude, longitude: ponto.longitude }}
-            title={cat.nome}
-            description={onRemover ? 'Toque aqui para remover' : cat.descricao}
-            onCalloutPress={() => onRemover?.(ponto.id)}
+            onPress={() => onPress?.(ponto)}
             tracksViewChanges={track}
             anchor={{ x: 0.5, y: 1 }}
         >
@@ -40,7 +38,7 @@ const PontoMarker = ({ ponto, onRemover }: Props): JSX.Element => {
     );
 };
 
-export default PontoMarker;
+export default memo(PontoMarker);
 
 const styles = StyleSheet.create({
     wrapper: { alignItems: 'center' },

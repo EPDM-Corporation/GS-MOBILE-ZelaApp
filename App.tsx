@@ -6,7 +6,7 @@ import { RootStackParamList } from './types';
 import LoginScreen from './screens/LoginScreen';
 import CadastroScreen from './screens/CadastroScreen';
 import HomeScreen from './screens/HomeScreen';
-
+import DetalheScreen from './screens/DetalheScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
   return (
@@ -15,6 +15,7 @@ export default function App() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Cadastro" component={CadastroScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Detalhe" component={DetalheScreen} options={{ title: 'Detalhes do ponto' }} />
     </Stack.Navigator>
   </NavigationContainer>
   );

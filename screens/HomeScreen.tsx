@@ -1,4 +1,4 @@
-import { type JSX, useState, useEffect } from 'react';
+import { type JSX, useState, useEffect , useCallback } from 'react';
 import {
     StyleSheet,
     Text,
@@ -70,9 +70,12 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
         setPinTemporario(null);
         setPontoMenuVisivel(false);
     };
-    const removerPonto = (id: string): void => {
-        setPontosSalvos((anteriores) => anteriores.filter((p) => p.id !== id));
-    };
+        const abrirPonto = useCallback(
+            (ponto: Ponto): void => {
+                navigation.navigate('Detalhe', { ponto });
+            },
+            [navigation]
+        );
     return (
         <SafeAreaView style={styles.screen} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.screen}>
@@ -94,10 +97,13 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                             longitude: location?.coords.longitude || -46.6333,
                             latitudeDelta: 0.009,
                             longitudeDelta: 0.009,
+
                         }}
                         showsUserLocation={true}
                         showsMyLocationButton={true}
                         onPress={aoTocarNoMapa}
+                        minZoomLevel={13}
+                         maxZoomLevel={19}
                     >
                         {location && (
                             <Marker
@@ -117,9 +123,9 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                             <PontoMarker ponto={{ id: 't5', latitude: -23.5310, longitude: -46.7910, categoria: 'iluminacao' }} />
                             <PontoMarker ponto={{ id: 't6', latitude: -23.5345, longitude: -46.7920, categoria: 'acessibilidade' }} />
                             <PontoMarker ponto={{ id: 't7', latitude: -23.5315, longitude: -46.7895, categoria: 'riscos' }} />
-                        {pontosSalvos.map((p) => (
-                        <PontoMarker key={p.id} ponto={p} onRemover={removerPonto} />
-                        ))}
+                            {pontosSalvos.map((p) => (
+                                <PontoMarker key={p.id} ponto={p} onPress={abrirPonto} />
+                            ))}
                         {pinTemporario && <Marker coordinate={pinTemporario} pinColor="red" />}
                     </MapView>
                 )}
