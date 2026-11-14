@@ -7,8 +7,8 @@ export type Categoria = {
     nome: string;
     descricao: string;
     icone: ComponentProps<typeof MaterialCommunityIcons>['name'];
-    cor: string;       // cor do ícone e da borda do pin
-    fundo: string;     // fundo claro do pin / do ícone no menu
+    cor: string;    
+    fundo: string;     
     prioridade: string;
     corPrioridade: string;
 };

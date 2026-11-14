@@ -64,7 +64,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.screen}>
         
         <View style = {styles.content}>
-            <Image source={require('../assets/ZelaLogo.png')} style={styles.logo}></Image>
+            <Image source={require('../../assets/ZelaLogo.png')} style={styles.logo}></Image>
             <Text style={styles.title}>Login</Text>
             <Text style={styles.subtitle}>Usuário </Text>
             <TextInput

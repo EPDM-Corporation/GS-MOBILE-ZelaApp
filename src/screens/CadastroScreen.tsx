@@ -85,7 +85,7 @@ const CadastroScreen = ({ navigation }: Props): JSX.Element => {
 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.screen}>
         
         <View style = {styles.content}>
-            <Image source={require('../assets/ZelaLogo.png')} style={styles.logo}></Image>
+            <Image source={require('../../assets/ZelaLogo.png')} style={styles.logo}></Image>
             <Text style={styles.title}>Cadastro</Text>
             <Text style={styles.subtitle}>Usuário</Text>
             <TextInput
