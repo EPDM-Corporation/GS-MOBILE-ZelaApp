@@ -62,7 +62,11 @@ const DetalheScreen = ({ route }: Props): JSX.Element => {
         }
     }, [texto, comentarios, ponto.id]);
 
-
+    const renderVazio = (): JSX.Element => {
+        if (carregando) return <Text style={styles.vazio}>Carregando...</Text>;
+        if (erroCarga) return <Text style={[styles.vazio, { color: '#D93025' }]}>{erroCarga}</Text>;
+        return <Text style={styles.vazio}>Nenhum comentário ainda. Seja o primeiro!</Text>;
+    };
     return (
         <SafeAreaView style={styles.screen} edges={['bottom', 'left', 'right']}>
             <KeyboardAvoidingView
@@ -87,9 +91,7 @@ const DetalheScreen = ({ route }: Props): JSX.Element => {
                             <Text style={styles.secao}>Comentários ({comentarios.length})</Text>
                         </View>
                     }
-                    ListEmptyComponent={
-                        <Text style={styles.vazio}>Nenhum comentário ainda. Seja o primeiro!</Text>
-                    }
+                    ListEmptyComponent={renderVazio()}
                     renderItem={({ item }) => (
                         <View style={styles.comentario}>
                             <Text style={styles.comentarioTexto}>{item.texto}</Text>
@@ -99,7 +101,7 @@ const DetalheScreen = ({ route }: Props): JSX.Element => {
                         </View>
                     )}
                 />
-
+                    {erroTexto && <Text style={styles.erro}>{erroTexto}</Text>}
                 <View style={styles.barra}>
                     <TextInput
                         style={styles.input}
@@ -174,4 +176,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    erro: { color: '#D93025', fontSize: 12, paddingHorizontal: 16, paddingTop: 6 },
 });
