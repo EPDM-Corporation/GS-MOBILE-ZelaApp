@@ -1,17 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ComponentProps } from 'react';
-import { CategoriaId } from '../types';
+import { CategoriaId, Categoria } from '../types';
 
-export type Categoria = {
-    id: CategoriaId;
-    nome: string;
-    descricao: string;
-    icone: ComponentProps<typeof MaterialCommunityIcons>['name'];
-    cor: string;    
-    fundo: string;     
-    prioridade: string;
-    corPrioridade: string;
-};
 
 export const CATEGORIAS: Categoria[] = [
     {
