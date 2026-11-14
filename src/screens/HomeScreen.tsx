@@ -17,14 +17,16 @@ import { Ionicons } from '@expo/vector-icons';
 import PontoMenu from '../components/PontoMenu'; 
 import PontoMarker from '../components/PontoMarker';
 import { Coordenada, CategoriaId, Ponto, RootStackParamList } from '../types';
+import SobreProjetoModal from '../components/SobreProjetoModal';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const HomeScreen = ({ navigation }: Props): JSX.Element => {
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const [menuVisible, setMenuVisible] = useState(false); // NOVO
-
+    const [menuVisible, setMenuVisible] = useState(false); 
+    const [sobreVisivel, setSobreVisivel] = useState(true);
 
     const [modoMarcar, setModoMarcar] = useState(false);
     const [pinTemporario, setPinTemporario] = useState<Coordenada | null>(null);
@@ -155,10 +157,23 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                     <Pressable style={styles.overlay} onPress={() => setMenuVisible(false)}>
                         <SafeAreaView edges={['top', 'left']} pointerEvents="box-none">
                             <View style={styles.menu}>
+                                
                                 <Text style={styles.menuItem}>{nomeUsuario || 'Usuário'}</Text>
+
                                 <TouchableOpacity style={styles.menuItem}>
                                     <Ionicons name="cog" size={20}/>
                                     <Text>Configuração</Text>
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity
+                                    style={styles.menuItem}
+                                    onPress={() => {
+                                        setMenuVisible(false);
+                                        setSobreVisivel(true);
+                                    }}
+                                >
+                                    <Ionicons name="information-circle-outline" size={20} />
+                                    <Text>Sobre o projeto</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={styles.menuItem} onPress={sair}>
@@ -177,7 +192,7 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                     onEscolher={salvarPonto}
                     onCancelar={descartarPonto}
                 />
-
+                <SobreProjetoModal visible={sobreVisivel} onFechar={() => setSobreVisivel(false)} />
                 <TouchableOpacity
                     style={[styles.button, modoMarcar && styles.buttonAtivo]}
                     onPress={() => setModoMarcar((atual) => !atual)}
