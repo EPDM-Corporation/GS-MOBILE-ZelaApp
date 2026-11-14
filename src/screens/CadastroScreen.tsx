@@ -1,9 +1,11 @@
 import { useState, type JSX } from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View, Platform, TextInput, TouchableOpacity, Image, Alert} from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { salvarConta, salvarSessao } from '../services/authService';
+import { validarUsuario, validarSenha, validarConfirmacao } from '../services/validacao';
+
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Cadastro'>;
 const CadastroScreen = ({ navigation }: Props): JSX.Element => {
     const [user, setUser] = useState<string>('');
@@ -14,48 +16,29 @@ const CadastroScreen = ({ navigation }: Props): JSX.Element => {
     const [errorPassword, setErrorPassword] = useState<string>('');
     const [errorPasswordConfirm, setErrorPasswordConfirm] = useState<string>('');
 
-        const validateUser = (userInput: string): string => {
-        if (userInput.trim().length < 3) {
-            return 'Usuário com mínimo de 3 letras';
-        }
-        return '';
-    }
-
-    const validatePassword = (userInput: string): string => {
-        if (userInput.trim().length < 6) {
-            return 'Senha no mínimo de 6 letras';
-        }
-        return '';
-    }
-
-    const validatePasswordConfirm = (userPassword: string, userPasswordConfirm: string): string => {
-        if (userPassword !== userPasswordConfirm) {
-            return 'Senha não é a mesma';
-        }
-        return '';
-    }
-
     const changeUser = (text: string): void => {
         setUser(text);
-        setErrorUser(validateUser(text));
-    }
-    
+        setErrorUser(validarUsuario(text));
+    };
+
     const changePassword = (text: string): void => {
         setPassword(text);
-        setErrorPassword(validatePassword(text));
-    }
-    
+        setErrorPassword(validarSenha(text));
+        
+        if (passwordConfirm !== '') {
+            setErrorPasswordConfirm(validarConfirmacao(text, passwordConfirm));
+        }
+    };
+
     const changePasswordConfirm = (text: string): void => {
         setPasswordConfirm(text);
-        setErrorPasswordConfirm(validatePasswordConfirm(password, text));
-    }
+        setErrorPasswordConfirm(validarConfirmacao(password, text));
+    };
 
     const cadastro = async (): Promise<void> => {
-
-        const messageUser = validateUser(user);
-        const messagePassword = validatePassword(password);
-        const messagePasswordConfirm = validatePasswordConfirm(password, passwordConfirm);
-
+        const messageUser = validarUsuario(user);
+        const messagePassword = validarSenha(password);
+        const messagePasswordConfirm = validarConfirmacao(password, passwordConfirm);
 
         setErrorUser(messageUser);
         setErrorPassword(messagePassword);
@@ -65,21 +48,17 @@ const CadastroScreen = ({ navigation }: Props): JSX.Element => {
             return;
         }
 
-        try{
-            await AsyncStorage.setItem(
-                'account',
-                JSON.stringify({ username: user, password: password })
-            );
-            await AsyncStorage.setItem('session', JSON.stringify({ username: user }));
-            
-            Alert.alert("Sucesso", "Conta criada com sucesso!", [
-                { text: "OK", onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }) }   
-        ]);
-        } catch (error){
-            Alert.alert("Erro", "Não foi possível cadastrar os dados. Tente novamente.");
-        }
+        try {
+            await salvarConta({ username: user, password });
+            await salvarSessao({ username: user });
 
-    }
+            Alert.alert('Sucesso', 'Conta criada com sucesso!', [
+                { text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }) },
+            ]);
+        } catch (e: unknown) {
+            Alert.alert('Erro', 'Não foi possível cadastrar os dados. Tente novamente.');
+        }
+    };
 
   return (
 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.screen}>

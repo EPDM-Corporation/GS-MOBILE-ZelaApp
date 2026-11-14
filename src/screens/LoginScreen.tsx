@@ -1,9 +1,8 @@
 import { useState, type JSX } from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View, Platform, TextInput, TouchableOpacity, Image, Alert} from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { buscarConta, salvarSessao } from '../services/authService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
     const LoginScreen = ({ navigation }: Props): JSX.Element => {
@@ -11,52 +10,27 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
 
-    const changeUser = (text: string): void => {
-        setUser(text);
-    }
-
-    const changePassword = (text: string): void => {
-        setPassword(text);
-    }
-
-    const changeError = (text:string): void => {
-        setError(text)
-    }
+ 
     const login = async (): Promise<void> => {
         try {
-            const stored = await AsyncStorage.getItem('account');
+            const conta = await buscarConta();
 
-            
-            if (stored === null) {
-                changeError("Conta não encontrada")
+            if (conta === null) {
+                setError('Conta não encontrada');
+                return;
+            }
+            if (conta.username !== user || conta.password !== password) {
+                setError('Usuário ou senha errada.');
                 return;
             }
 
-            const account = JSON.parse(stored);
-
-            if (account.username !== user || account.password !== password) {    
-                changeError("Usuário ou senha errada.")
-                return
-            }
-
-            await storeSession();
+            await salvarSessao({ username: user });
             navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-        } catch (error) {
-            Alert.alert("Erro", "Não foi possível acessar os dados. Tente novamente.");
+        } catch (e: unknown) {
+            Alert.alert('Erro', 'Não foi possível acessar os dados. Tente novamente.');
         }
     };
 
-    const storeSession = async (): Promise<void> => {
-        try{
-            await AsyncStorage.setItem(
-                'session',
-                JSON.stringify({ username: user })
-            );
-       
-        } catch (error){
-            Alert.alert("Erro", "Não foi possível acessar os dados. Tente novamente.");    
-        }
-    }
     const navCadastro = (): void => {
         navigation.navigate('Cadastro')
     }
@@ -72,7 +46,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
                     placeholder="Seu usuário.."
                     placeholderTextColor="#9A9AA3"
                     value={user}
-                    onChangeText={changeUser}
+                    onChangeText={setUser}
                 />
             <Text style={styles.subtitle}>Senha</Text>
             <TextInput
@@ -80,7 +54,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
                     placeholder="Sua senha..."
                     placeholderTextColor="#9A9AA3"
                     value={password}
-                    onChangeText={changePassword}
+                    onChangeText={setPassword}
                     secureTextEntry={true}
                 />
             {error !== '' && <Text style={styles.error}>{error}</Text>}

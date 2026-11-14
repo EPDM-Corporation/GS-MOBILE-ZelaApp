@@ -9,7 +9,6 @@ import {
     Pressable,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +17,8 @@ import PontoMenu from '../components/PontoMenu';
 import PontoMarker from '../components/PontoMarker';
 import { Coordenada, CategoriaId, Ponto, RootStackParamList } from '../types';
 import SobreProjetoModal from '../components/SobreProjetoModal';
-
+import { buscarSessao, encerrarSessao } from '../services/authService';
+import { listarPontos, salvarPontos } from '../services/pontosService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -33,31 +33,54 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
     const [pontoMenuVisivel, setPontoMenuVisivel] = useState(false);
     const [pontosSalvos, setPontosSalvos] = useState<Ponto[]>([]);
     const [nomeUsuario, setNomeUsuario] = useState<string>('');
+    const [pontosCarregados, setPontosCarregados] = useState(false);
 
     useEffect(() => {
         (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
+            const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 setErrorMsg('Permissão de acesso à localização negada.');
                 return;
             }
-            let currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation(currentLocation);
-            try {
-                const salvo = await AsyncStorage.getItem('session');
-            if (salvo) {
-                const sessao = JSON.parse(salvo);
-                setNomeUsuario(sessao.username ?? '');
-            }
-        } catch (e) {
-            console.log('Erro ao ler sessão', e);
-        }
+            const atual = await Location.getCurrentPositionAsync({});
+            setLocation(atual);
         })();
     }, []);
 
+    useEffect(() => {
+    (async () => {
+        try {
+            const sessao = await buscarSessao();
+            setNomeUsuario(sessao?.username ?? '');
+        } catch (e: unknown) {
+            console.log('Erro ao ler sessão', e);
+        }
+    })();
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                setPontosSalvos(await listarPontos());
+            } catch (e: unknown) {
+                console.log('Erro ao carregar pontos', e);
+            } finally {
+                setPontosCarregados(true);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!pontosCarregados) return;
+        salvarPontos(pontosSalvos).catch((e: unknown) =>
+            console.log('Erro ao salvar pontos', e)
+        );
+    }, [pontosSalvos, pontosCarregados]);
+
+
     const sair = async (): Promise<void> => {
-        setMenuVisible(false); 
-        await AsyncStorage.removeItem('session');
+        setMenuVisible(false);
+        await encerrarSessao();
         navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
     };
 
@@ -107,8 +130,8 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                     <MapView
                         style={styles.map}
                         initialRegion={{
-                            latitude: location?.coords.latitude || -23.5505,
-                            longitude: location?.coords.longitude || -46.6333,
+                            latitude: location?.coords.latitude ?? -23.5505,
+                            longitude: location?.coords.longitude ?? -46.6333,
                             latitudeDelta: 0.009,
                             longitudeDelta: 0.009,
 
@@ -119,17 +142,6 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                         minZoomLevel={13}
                          maxZoomLevel={19}
                     >
-                        {location && (
-                            <Marker
-                                coordinate={{
-                                    latitude: location.coords.latitude,
-                                    longitude: location.coords.longitude,
-                                }}
-                                title="Você está aqui"
-                                description="Localização atual capturada pelo GPS"
-                            />
-                        )}
-
                             {pontosSalvos.map((p) => (
                                 <PontoMarker key={p.id} ponto={p} onPress={abrirPonto} />
                             ))}
@@ -157,14 +169,9 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
                     <Pressable style={styles.overlay} onPress={() => setMenuVisible(false)}>
                         <SafeAreaView edges={['top', 'left']} pointerEvents="box-none">
                             <View style={styles.menu}>
-                                
-                                <Text style={styles.menuItem}>{nomeUsuario || 'Usuário'}</Text>
 
-                                <TouchableOpacity style={styles.menuItem}>
-                                    <Ionicons name="cog" size={20}/>
-                                    <Text>Configuração</Text>
-                                </TouchableOpacity>
-                                
+                                <Text style={styles.menuItem}>{nomeUsuario || 'Usuário'}</Text>
+                             
                                 <TouchableOpacity
                                     style={styles.menuItem}
                                     onPress={() => {

@@ -8,20 +8,24 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    Alert
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Comentario, RootStackParamList } from '../types';
 import { getCategoria } from '../constants/categorias';
+import { listarComentarios, salvarComentarios } from '../services/comentariosService';
+import { validarComentario } from '../services/validacao';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Detalhe'>;
 
 const DetalheScreen = ({ route }: Props): JSX.Element => {
     const { ponto } = route.params;
     const cat = getCategoria(ponto.categoria);
-    const chave = `comentarios:${ponto.id}`;
+    const [carregando, setCarregando] = useState(true);
+    const [erroCarga, setErroCarga] = useState<string | null>(null);
+    const [erroTexto, setErroTexto] = useState<string | null>(null);
 
     const [comentarios, setComentarios] = useState<Comentario[]>([]);
     const [texto, setTexto] = useState('');
@@ -29,28 +33,35 @@ const DetalheScreen = ({ route }: Props): JSX.Element => {
     useEffect(() => {
         (async () => {
             try {
-                const salvo = await AsyncStorage.getItem(chave);
-                if (salvo) setComentarios(JSON.parse(salvo));
-            } catch (e) {
-                console.log('Erro ao carregar comentários', e);
+                setComentarios(await listarComentarios(ponto.id));
+            } catch (e: unknown) {
+                setErroCarga('Não foi possível carregar os comentários.');
+            } finally {
+                setCarregando(false);
             }
         })();
-    }, [chave]);
+    }, [ponto.id]);
 
     const enviar = useCallback(async (): Promise<void> => {
-        const limpo = texto.trim();
-        if (!limpo) return;
+        const erro = validarComentario(texto);
+        setErroTexto(erro);
+        if (erro) return;
 
         const novo: Comentario = {
             id: Date.now().toString(),
-            texto: limpo,
+            texto: texto.trim(),
             data: new Date().toISOString(),
         };
         const lista = [novo, ...comentarios];
         setComentarios(lista);
         setTexto('');
-        await AsyncStorage.setItem(chave, JSON.stringify(lista));
-    }, [texto, comentarios, chave]);
+        try {
+            await salvarComentarios(ponto.id, lista);
+        } catch (e: unknown) {
+            Alert.alert('Erro', 'Não foi possível salvar o comentário.');
+        }
+    }, [texto, comentarios, ponto.id]);
+
 
     return (
         <SafeAreaView style={styles.screen} edges={['bottom', 'left', 'right']}>
