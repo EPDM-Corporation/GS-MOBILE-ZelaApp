@@ -24,10 +24,6 @@ A proposta é aproximar a população do cuidado com a cidade, apoiando os
 **ODS 11 (Cidades e comunidades sustentáveis)** e **ODS 10 (Redução das
 desigualdades)**.
 
-Como parte da CitizenTech da equipe, o Zela integra um aplicativo mobile, uma API
-com banco de dados e um sensor IoT de nível de água, que monitora pontos de
-alagamento e envia alertas automáticos.
-
 
 ## Equipe
 
