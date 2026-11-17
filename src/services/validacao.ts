@@ -1,10 +1,3 @@
-export const validarPonto = (descricao: string): string | null => {
-    const limpo = descricao.trim();
-    if (limpo.length === 0) return 'Descreva o problema.';
-    if (limpo.length < 10) return 'Use pelo menos 10 caracteres.';
-    return null;
-};
-
 export const validarCadastro = (usuario: string, senha: string): string | null => {
     if (usuario.trim().length < 3) return 'O usuário precisa de 3+ caracteres.';
     if (senha.length < 6) return 'A senha precisa de 6+ caracteres.';

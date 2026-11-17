@@ -88,9 +88,9 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
     const aoTocarNoMapa = (e: MapPressEvent): void => {
     if (!modoMarcar) return;
 
-    setPinTemporario(e.nativeEvent.coordinate); 
-    setPontoMenuVisivel(true);                 
-    setModoMarcar(false);                       
+        setPinTemporario(e.nativeEvent.coordinate); 
+        setPontoMenuVisivel(true);                 
+        setModoMarcar(false);                       
     };
 
     const salvarPonto = (categoria: CategoriaId): void => {

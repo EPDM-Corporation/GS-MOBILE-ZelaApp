@@ -7,14 +7,11 @@ import { getCategoria } from '../constants/categorias';
 
 type Props = {
     ponto: Ponto;
-    onPress?: (ponto: Ponto) => void; // era onRemover
+    onPress?: (ponto: Ponto) => void; 
 };
 
 const PontoMarker = ({ ponto, onPress }: Props): JSX.Element => {
     const cat = getCategoria(ponto.categoria);
-
-    // No Android, o marcador customizado precisa renderizar uma vez
-    // antes de congelar a view, senão o ícone pode sair em branco.
     const [track, setTrack] = useState(true);
     useEffect(() => {
         const t = setTimeout(() => setTrack(false), 500);

@@ -143,4 +143,4 @@ As decisões de arquitetura estão em [`DECISOES.md`](./DECISOES.md).
 
 ## Registro de uso de IA
 
-A IA foi utilizada na correção de bugs e auxilio na construção do APP, veja o DECISÕES.MD para saber mais.
+A IA foi utilizada na correção de bugs e auxilio na construção do APP.

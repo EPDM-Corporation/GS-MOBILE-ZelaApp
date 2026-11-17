@@ -1,5 +1,3 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ComponentProps } from 'react';
 import { CategoriaId, Categoria } from '../types';
 
 
