@@ -37,13 +37,36 @@ const HomeScreen = ({ navigation }: Props): JSX.Element => {
 
     useEffect(() => {
         (async () => {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permissão de acesso à localização negada.');
-                return;
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    setErrorMsg('Permissão de acesso à localização negada.');
+                    return;
+                }
+
+                const servicoAtivo = await Location.hasServicesEnabledAsync();
+                if (!servicoAtivo) {
+                    setErrorMsg('Ative a localização (GPS) do aparelho e tente novamente.');
+                    return;
+                }
+
+                // tenta a última posição conhecida (rápida) e depois a atual
+                const ultima = await Location.getLastKnownPositionAsync();
+                if (ultima) setLocation(ultima);
+
+                const atual = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Balanced,
+                });
+                setLocation(atual);
+            } catch (e: unknown) {
+                // se já houver uma posição (a última conhecida), segue com ela
+                setLocation((anterior) => {
+                    if (!anterior) {
+                        setErrorMsg('Não foi possível obter sua localização. Verifique o GPS.');
+                    }
+                    return anterior;
+                });
             }
-            const atual = await Location.getCurrentPositionAsync({});
-            setLocation(atual);
         })();
     }, []);
 
